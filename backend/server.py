@@ -826,14 +826,18 @@ async def on_shutdown():
 
 
 def _allowed_origins() -> list:
-    """Comma-separated list. Falls back to FRONTEND_URL + localhost for dev.
-    Use CORS_ORIGINS in production (e.g., 'https://app.vercel.app,https://staging.vercel.app')."""
-    raw = os.environ.get("CORS_ORIGINS") or os.environ.get("FRONTEND_URL", "")
-    origins = [o.strip() for o in raw.split(",") if o.strip()]
-    if "http://localhost:3000" not in origins:
-        origins.append("http://localhost:3000")
-    if not origins:
-        origins = ["*"]
+    origins = [
+        "http://localhost:3000",
+        "https://meeting-room-booking-system-umber.vercel.app",
+    ]
+
+    extra = os.environ.get("CORS_ORIGINS", "")
+    if extra:
+        for origin in extra.split(","):
+            origin = origin.strip()
+            if origin and origin not in origins:
+                origins.append(origin)
+
     return origins
 
 
