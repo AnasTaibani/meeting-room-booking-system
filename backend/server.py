@@ -413,7 +413,7 @@ async def refresh(request: Request, response: Response):
 
 # ---------------------- Rooms -----------------------------------------------
 @api.get("/rooms", response_model=List[RoomOut])
-async def list_rooms(_user: dict = Depends(get_current_user)):
+async def list_rooms():
     rooms = await db.rooms.find({}, {"_id": 0}).to_list(100)
     rooms.sort(key=lambda r: r["id"])
     out = []
@@ -428,7 +428,7 @@ async def list_rooms(_user: dict = Depends(get_current_user)):
 
 
 @api.get("/rooms/status")
-async def rooms_status(_user: dict = Depends(get_current_user)):
+async def rooms_status():
     rooms = await db.rooms.find({}, {"_id": 0}).to_list(100)
     rooms.sort(key=lambda r: r["id"])
     now = now_utc()
