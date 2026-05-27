@@ -205,8 +205,32 @@ async def get_current_user(request: Request) -> dict:
         payload = jwt.decode(token, get_jwt_secret(), algorithms=[JWT_ALGORITHM])
         if payload.get("type") != "access":
             raise HTTPException(status_code=401, detail="Invalid token type")
-        user = await db.users.find_one({"id": payload["sub"]}, {"_id": 0, "password_hash": 0})
+
+        sub = payload.get("sub")
+        email = (payload.get("email") or "").lower() or None
+        user = None
+
+        # Primary lookup by uuid id (the canonical identifier the JWT stores)
+        if sub:
+            user = await db.users.find_one({"id": sub}, {"_id": 0, "password_hash": 0})
+
+        # Fallback by email — handles imported docs / migrations where the
+        # `id` field may have drifted. The JWT is still cryptographically
+        # verified, so this remains safe.
+        if not user and email:
+            user = await db.users.find_one({"email": email}, {"_id": 0, "password_hash": 0})
+            if user:
+                logger.warning(
+                    "get_current_user: id lookup miss, fell back to email. jwt.sub=%s db.id=%s email=%s",
+                    sub, user.get("id"), email,
+                )
+                # Self-heal: stamp the user with the JWT sub so future lookups hit the fast path.
+                if sub and not user.get("id"):
+                    await db.users.update_one({"email": email}, {"$set": {"id": sub}})
+                    user["id"] = sub
+
         if not user:
+            logger.warning("get_current_user: user not found. jwt.sub=%s email=%s", sub, email)
             raise HTTPException(status_code=401, detail="User not found")
         return user
     except jwt.ExpiredSignatureError:
@@ -333,8 +357,14 @@ async def login(payload: LoginIn, response: Response):
     user = await db.users.find_one({"email": email})
     if not user or not verify_password(payload.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
-    access = create_access_token(user["id"], email)
-    refresh = create_refresh_token(user["id"])
+    # Migration safety: back-fill `id` if the doc was imported without one.
+    user_id = user.get("id")
+    if not user_id:
+        user_id = str(uuid.uuid4())
+        await db.users.update_one({"email": email}, {"$set": {"id": user_id}})
+        user["id"] = user_id
+    access = create_access_token(user_id, email)
+    refresh = create_refresh_token(user_id)
     set_auth_cookies(response, access, refresh)
     return public_user(user)
 
@@ -359,7 +389,17 @@ async def refresh(request: Request, response: Response):
         payload = jwt.decode(token, get_jwt_secret(), algorithms=[JWT_ALGORITHM])
         if payload.get("type") != "refresh":
             raise HTTPException(status_code=401, detail="Invalid token type")
-        user = await db.users.find_one({"id": payload["sub"]})
+        sub = payload.get("sub")
+        user = None
+        if sub:
+            user = await db.users.find_one({"id": sub})
+        if not user:
+            email = (payload.get("email") or "").lower() or None
+            if email:
+                user = await db.users.find_one({"email": email})
+                if user and sub and not user.get("id"):
+                    await db.users.update_one({"email": email}, {"$set": {"id": sub}})
+                    user["id"] = sub
         if not user:
             raise HTTPException(status_code=401, detail="User not found")
         new_access = create_access_token(user["id"], user["email"])
@@ -639,11 +679,29 @@ async def admin_analytics(_admin: dict = Depends(require_admin)):
 # Startup: indexes + seed
 # -----------------------------------------------------------------------------
 async def seed_admin_and_users():
-    await db.users.create_index("email", unique=True)
-    await db.users.create_index("id", unique=True)
-    await db.rooms.create_index("id", unique=True)
-    await db.bookings.create_index("id", unique=True)
-    await db.bookings.create_index([("room_id", 1), ("start_time", 1)])
+    # Indexes — wrap in try so a single failure (e.g. dup keys in imported data)
+    # doesn't kill startup. Logged so it's still visible.
+    for idx in [
+        ("users", "email", True),
+        ("users", "id", True),
+        ("rooms", "id", True),
+        ("bookings", "id", True),
+    ]:
+        try:
+            await db[idx[0]].create_index(idx[1], unique=idx[2])
+        except Exception as e:
+            logger.warning("Index create skipped for %s.%s: %s", idx[0], idx[1], e)
+    try:
+        await db.bookings.create_index([("room_id", 1), ("start_time", 1)])
+    except Exception as e:
+        logger.warning("Compound bookings index skipped: %s", e)
+
+    # Migration safety: back-fill missing `id` on any users that lack one.
+    # Happens once on first boot against a pre-existing collection.
+    async for doc in db.users.find({"id": {"$exists": False}}, {"email": 1}):
+        new_id = str(uuid.uuid4())
+        await db.users.update_one({"_id": doc["_id"]}, {"$set": {"id": new_id}})
+        logger.info("Backfilled id for user %s", doc.get("email"))
 
     # Seed rooms
     for r in ROOMS_SEED:
@@ -662,8 +720,16 @@ async def seed_admin_and_users():
             "password_hash": hash_password(admin_password),
             "created_at": now_utc().isoformat(),
         })
-    elif not verify_password(admin_password, existing_admin["password_hash"]):
-        await db.users.update_one({"email": admin_email}, {"$set": {"password_hash": hash_password(admin_password)}})
+    else:
+        updates = {}
+        if not existing_admin.get("id"):
+            updates["id"] = str(uuid.uuid4())
+        if not existing_admin.get("password_hash") or not verify_password(admin_password, existing_admin["password_hash"]):
+            updates["password_hash"] = hash_password(admin_password)
+        if existing_admin.get("role") != "admin":
+            updates["role"] = "admin"
+        if updates:
+            await db.users.update_one({"email": admin_email}, {"$set": updates})
 
     # Seed employees
     employees = [
