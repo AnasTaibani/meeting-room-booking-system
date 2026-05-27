@@ -176,9 +176,26 @@ def _cookie_kwargs(max_age: int) -> dict:
     }
 
 
-def set_auth_cookies(response: Response, access: str, refresh: str) -> None:
-    response.set_cookie("access_token", access, **_cookie_kwargs(3600))
-    response.set_cookie("refresh_token", refresh, **_cookie_kwargs(604800))
+def set_auth_cookies(response: Response, access_token: str, refresh_token: str):
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=True,
+        samesite="none",
+        path="/",
+        max_age=60 * 60 * 24,
+    )
+
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=True,
+        samesite="none",
+        path="/",
+        max_age=60 * 60 * 24 * 7,
+    )
 
 
 def clear_auth_cookies(response: Response) -> None:
@@ -824,7 +841,9 @@ app.include_router(api)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_allowed_origins(),
+    allow_origins=[
+        "https://meeting-room-booking-system-umber.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
