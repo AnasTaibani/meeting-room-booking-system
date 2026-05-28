@@ -120,6 +120,8 @@ class MaintenanceIn(BaseModel):
     maintenance: bool
 
 
+
+
 # -----------------------------------------------------------------------------
 # Auth helpers
 # -----------------------------------------------------------------------------
@@ -137,7 +139,8 @@ def get_jwt_secret() -> str:
 
 def create_access_token(user_id: str, email: str) -> str:
     payload = {
-        "sub": user_id, "email": email,
+        "sub": user_id,
+        "email": email,
         "exp": datetime.now(timezone.utc) + timedelta(minutes=60),
         "type": "access",
     }
@@ -153,107 +156,53 @@ def create_refresh_token(user_id: str) -> str:
     return jwt.encode(payload, get_jwt_secret(), algorithm=JWT_ALGORITHM)
 
 
-def _cookie_kwargs(max_age: int) -> dict:
-    """Cookie attrs driven by env so the same code works locally (lax/no-secure)
-    and in production cross-origin (none/secure). Defaults are safe for local dev."""
-    samesite = os.environ.get("COOKIE_SAMESITE", "lax").lower()
-    if samesite not in ("lax", "strict", "none"):
-        samesite = "lax"
-    secure_env = os.environ.get("COOKIE_SECURE", "auto").lower()
-    if secure_env == "true":
-        secure = True
-    elif secure_env == "false":
-        secure = False
-    else:
-        # auto: samesite=none requires secure=true per browser spec
-        secure = samesite == "none"
-    return {
-        "httponly": True,
-        "secure": secure,
-        "samesite": samesite,
-        "max_age": max_age,
-        "path": "/",
-    }
-
-
-def set_auth_cookies(response: Response, access_token: str, refresh_token: str):
-    response.set_cookie(
-        key="access_token",
-        value=access_token,
-        httponly=True,
-        secure=True,
-        samesite="none",
-        path="/",
-        max_age=60 * 60 * 24,
-    )
-
-    response.set_cookie(
-        key="refresh_token",
-        value=refresh_token,
-        httponly=True,
-        secure=True,
-        samesite="none",
-        path="/",
-        max_age=60 * 60 * 24 * 7,
-    )
-
-
-def clear_auth_cookies(response: Response) -> None:
-    response.delete_cookie("access_token", path="/")
-    response.delete_cookie("refresh_token", path="/")
-
-
 def public_user(doc: dict) -> dict:
     return {
-        "id": doc["id"], "email": doc["email"], "name": doc["name"],
-        "team": doc["team"], "role": doc["role"],
+        "id": doc["id"],
+        "email": doc["email"],
+        "name": doc["name"],
+        "team": doc["team"],
+        "role": doc["role"],
     }
 
 
 async def get_current_user(request: Request) -> dict:
-    token = request.cookies.get("access_token")
-    if not token:
-        auth_header = request.headers.get("Authorization", "")
-        if auth_header.startswith("Bearer "):
-            token = auth_header[7:]
+    token = None
+
+    auth_header = request.headers.get("Authorization", "")
+
+    if auth_header.startswith("Bearer "):
+        token = auth_header.split(" ")[1]
+
     if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")
+
     try:
-        payload = jwt.decode(token, get_jwt_secret(), algorithms=[JWT_ALGORITHM])
+        payload = jwt.decode(
+            token,
+            get_jwt_secret(),
+            algorithms=[JWT_ALGORITHM]
+        )
+
         if payload.get("type") != "access":
             raise HTTPException(status_code=401, detail="Invalid token type")
 
-        sub = payload.get("sub")
-        email = (payload.get("email") or "").lower() or None
-        user = None
-
-        # Primary lookup by uuid id (the canonical identifier the JWT stores)
-        if sub:
-            user = await db.users.find_one({"id": sub}, {"_id": 0, "password_hash": 0})
-
-        # Fallback by email — handles imported docs / migrations where the
-        # `id` field may have drifted. The JWT is still cryptographically
-        # verified, so this remains safe.
-        if not user and email:
-            user = await db.users.find_one({"email": email}, {"_id": 0, "password_hash": 0})
-            if user:
-                logger.warning(
-                    "get_current_user: id lookup miss, fell back to email. jwt.sub=%s db.id=%s email=%s",
-                    sub, user.get("id"), email,
-                )
-                # Self-heal: stamp the user with the JWT sub so future lookups hit the fast path.
-                if sub and not user.get("id"):
-                    await db.users.update_one({"email": email}, {"$set": {"id": sub}})
-                    user["id"] = sub
+        user = await db.users.find_one(
+            {"id": payload.get("sub")},
+            {"_id": 0, "password_hash": 0}
+        )
 
         if not user:
-            logger.warning("get_current_user: user not found. jwt.sub=%s email=%s", sub, email)
             raise HTTPException(status_code=401, detail="User not found")
+
         return user
+
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
-    except jwt.InvalidTokenError:
+
+    except Exception:
         raise HTTPException(status_code=401, detail="Invalid token")
+
 
 
 async def require_admin(user: dict = Depends(get_current_user)) -> dict:
@@ -349,83 +298,75 @@ async def root():
 
 # ---------------------- Auth ------------------------------------------------
 @api.post("/auth/register")
-async def register(payload: RegisterIn, response: Response):
+async def register(payload: RegisterIn):
     email = payload.email.lower()
+
     existing = await db.users.find_one({"email": email})
+
     if existing:
         raise HTTPException(status_code=409, detail="Email already registered")
+
     user_id = str(uuid.uuid4())
+
     doc = {
-        "id": user_id, "email": email, "name": payload.name.strip(),
-        "team": payload.team.strip(), "role": "employee",
+        "id": user_id,
+        "email": email,
+        "name": payload.name.strip(),
+        "team": payload.team.strip(),
+        "role": "employee",
         "password_hash": hash_password(payload.password),
         "created_at": now_utc().isoformat(),
     }
+
     await db.users.insert_one(doc)
+
     access = create_access_token(user_id, email)
     refresh = create_refresh_token(user_id)
-    set_auth_cookies(response, access, refresh)
-    return public_user(doc)
+
+    return {
+        "access_token": access,
+        "refresh_token": refresh,
+        "user": public_user(doc)
+    }
 
 
 @api.post("/auth/login")
-async def login(payload: LoginIn, response: Response):
+async def login(payload: LoginIn):
     email = payload.email.lower()
+
     user = await db.users.find_one({"email": email})
+
     if not user or not verify_password(payload.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid email or password")
-    # Migration safety: back-fill `id` if the doc was imported without one.
+
     user_id = user.get("id")
+
     if not user_id:
         user_id = str(uuid.uuid4())
-        await db.users.update_one({"email": email}, {"$set": {"id": user_id}})
+        await db.users.update_one(
+            {"email": email},
+            {"$set": {"id": user_id}}
+        )
         user["id"] = user_id
+
     access = create_access_token(user_id, email)
     refresh = create_refresh_token(user_id)
-    set_auth_cookies(response, access, refresh)
-    return public_user(user)
+
+    return {
+        "access_token": access,
+        "refresh_token": refresh,
+        "user": public_user(user)
+    }
 
 
 @api.post("/auth/logout")
-async def logout(response: Response, _user: dict = Depends(get_current_user)):
-    clear_auth_cookies(response)
+async def logout():
     return {"ok": True}
 
 
 @api.get("/auth/me")
 async def me(user: dict = Depends(get_current_user)):
     return public_user(user)
-
-
-@api.post("/auth/refresh")
-async def refresh(request: Request, response: Response):
-    token = request.cookies.get("refresh_token")
-    if not token:
-        raise HTTPException(status_code=401, detail="No refresh token")
-    try:
-        payload = jwt.decode(token, get_jwt_secret(), algorithms=[JWT_ALGORITHM])
-        if payload.get("type") != "refresh":
-            raise HTTPException(status_code=401, detail="Invalid token type")
-        sub = payload.get("sub")
-        user = None
-        if sub:
-            user = await db.users.find_one({"id": sub})
-        if not user:
-            email = (payload.get("email") or "").lower() or None
-            if email:
-                user = await db.users.find_one({"email": email})
-                if user and sub and not user.get("id"):
-                    await db.users.update_one({"email": email}, {"$set": {"id": sub}})
-                    user["id"] = sub
-        if not user:
-            raise HTTPException(status_code=401, detail="User not found")
-        new_access = create_access_token(user["id"], user["email"])
-        response.set_cookie("access_token", new_access, **_cookie_kwargs(3600))
-        return {"ok": True}
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Refresh token expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
 
 
 # ---------------------- Rooms -----------------------------------------------
@@ -846,9 +787,10 @@ app.include_router(api)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://meeting-room-booking-system-umber.vercel.app"
+        "http://localhost:3000",
+        "https://meeting-room-booking-system-umber.vercel.app",
     ],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
