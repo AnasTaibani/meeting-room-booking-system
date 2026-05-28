@@ -1,32 +1,87 @@
 import React from "react";
+import {
+  Sofa,
+  CalendarDays,
+  UserRound,
+  Wrench,
+} from "lucide-react";
 
 const STATUS_MAP = {
-  available:   { label: "Available",   fgVar: "--status-available-fg",   bgVar: "--status-available-bg",   bdVar: "--status-available-bd" },
-  booked:      { label: "Booked",      fgVar: "--status-booked-fg",      bgVar: "--status-booked-bg",      bdVar: "--status-booked-bd" },
-  occupied:    { label: "Occupied",    fgVar: "--status-occupied-fg",    bgVar: "--status-occupied-bg",    bdVar: "--status-occupied-bd" },
-  maintenance: { label: "Maintenance", fgVar: "--status-maintenance-fg", bgVar: "--status-maintenance-bg", bdVar: "--status-maintenance-bd" },
-  upcoming:    { label: "Upcoming",    fgVar: "--status-booked-fg",      bgVar: "--status-booked-bg",      bdVar: "--status-booked-bd" },
-  active:      { label: "In Progress", fgVar: "--status-occupied-fg",    bgVar: "--status-occupied-bg",    bdVar: "--status-occupied-bd" },
-  past:        { label: "Completed",   fgVar: "--fg-soft",               bgVar: "--surface-muted",         bdVar: "--border" },
-  cancelled:   { label: "Cancelled",   fgVar: "--fg-faint",              bgVar: "--surface-muted",         bdVar: "--border" },
+  available: {
+    label: "AVAILABLE",
+    icon: Sofa,
+    text: "#d1fae5",
+    bg: "rgba(34,197,94,0.12)",
+    border: "rgba(34,197,94,0.18)",
+    iconColor: "#4ade80",
+  },
+
+  booked: {
+    label: "BOOKED",
+    icon: CalendarDays,
+    text: "#dbeafe",
+    bg: "rgba(59,130,246,0.12)",
+    border: "rgba(59,130,246,0.18)",
+    iconColor: "#60a5fa",
+  },
+
+  occupied: {
+    label: "OCCUPIED",
+    icon: UserRound,
+    text: "#fde68a",
+    bg: "rgba(245,158,11,0.12)",
+    border: "rgba(245,158,11,0.18)",
+    iconColor: "#f59e0b",
+  },
+
+  maintenance: {
+    label: "MAINTENANCE",
+    icon: Wrench,
+    text: "#fecaca",
+    bg: "rgba(239,68,68,0.12)",
+    border: "rgba(239,68,68,0.18)",
+    iconColor: "#f87171",
+  },
 };
 
-export default function StatusBadge({ status, className = "", showDot = true, "data-testid": tid }) {
+export default function StatusBadge({
+  status,
+  className = "",
+  "data-testid": tid,
+}) {
   const c = STATUS_MAP[status] || STATUS_MAP.available;
+  const Icon = c.icon;
+
   return (
-    <span
+    <div
       data-testid={tid || `status-badge-${status}`}
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] tracking-[0.14em] uppercase font-semibold rounded-full border ${className}`}
+      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border backdrop-blur-md ${className}`}
       style={{
-        color: `var(${c.fgVar})`,
-        backgroundColor: `var(${c.bgVar})`,
-        borderColor: `var(${c.bdVar})`,
+        background: c.bg,
+        borderColor: c.border,
       }}
     >
-      {showDot && (
-        <span className="w-1.5 h-1.5 rounded-full" style={{ background: `var(${c.fgVar})` }} />
-      )}
-      {c.label}
-    </span>
+      <div
+        className="w-7 h-7 rounded-full flex items-center justify-center"
+        style={{
+          background: `${c.iconColor}15`,
+        }}
+      >
+        <Icon
+          size={14}
+          strokeWidth={2.2}
+          color={c.iconColor}
+        />
+      </div>
+
+      <span
+        className="text-[10px] tracking-[0.22em] font-semibold"
+        style={{
+          color: c.text,
+        }}
+      >
+        {c.label}
+      </span>
+    </div>
   );
 }

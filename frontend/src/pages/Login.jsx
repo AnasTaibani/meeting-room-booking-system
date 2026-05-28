@@ -17,20 +17,29 @@ function Wordmark({ size = "md" }) {
   };
   const s = sizes[size] || sizes.md;
   return (
-    <div className="font-display leading-none select-none">
-      <div
-        className="font-semibold tracking-tight"
-        style={{ fontSize: s.primary, color: "var(--fg)", letterSpacing: "-0.02em" }}
-      >
-        Metamorphosys
-      </div>
-      <div
-        className="uppercase font-medium"
-        style={{ fontSize: s.secondary, marginTop: s.gap, letterSpacing: s.secLetter, color: "var(--fg-soft)" }}
-      >
-        Technologies
-      </div>
-    </div>
+    <div className="flex items-center gap-3">
+  <img
+    src={logo}
+    alt="Metamorphosys Logo"
+    className="w-10 h-10 object-contain"
+  />
+
+  <div>
+    <h1
+      className="text-[18px] font-semibold leading-none"
+      style={{ color: "var(--fg)" }}
+    >
+      Metamorphosys
+    </h1>
+
+    <p
+      className="text-[10px] tracking-[0.25em] mt-1"
+      style={{ color: "var(--fg-soft)" }}
+    >
+      TECHNOLOGIES
+    </p>
+  </div>
+</div>
   );
 }
 
