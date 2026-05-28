@@ -202,11 +202,22 @@ function StatTile({ colorVar, label, value, testid, loading, delay = 0 }) {
           : <div className="font-display text-[28px] tracking-tight" style={{ color: "var(--fg)" }}>{value}</div>}
       </div>
       <div
-        className="w-10 h-10 rounded-full flex items-center justify-center"
-        style={{ background: `var(${colorVar})`, opacity: 0.16 }}
-      >
-        <span className="w-2 h-2 rounded-full" style={{ background: `var(${colorVar})`, opacity: 5 }} />
-      </div>
+  className="w-14 h-14 rounded-full flex items-center justify-center border"
+  style={{
+    background: `color-mix(in srgb, var(${colorVar}) 22%, transparent)`,
+    borderColor: `color-mix(in srgb, var(${colorVar}) 45%, transparent)`,
+    boxShadow: `0 0 30px color-mix(in srgb, var(${colorVar}) 35%, transparent)`,
+    backdropFilter: "blur(10px)",
+  }}
+>
+  <span
+    className="w-3 h-3 rounded-full"
+    style={{
+      background: `var(${colorVar})`,
+      boxShadow: `0 0 12px var(${colorVar})`,
+    }}
+  />
+</div>
     </div>
   );
 }
