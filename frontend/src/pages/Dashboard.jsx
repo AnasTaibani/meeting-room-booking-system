@@ -272,19 +272,30 @@ function StatTile({
       </div>
 
       <div
-        className="w-24 h-24 rounded-full flex items-center justify-center"
-        style={{
-          background: `color-mix(in srgb, var(${colorVar}) 16%, transparent)`,
-        }}
-      >
-        <Icon
-          size={42}
-          strokeWidth={1.8}
-          style={{
-            color: `var(${colorVar})`,
-          }}
-        />
-      </div>
+  className="
+    w-16 h-24
+    sm:w-20 sm:h-20
+    lg:w-24 lg:h-24
+    rounded-[28px]
+    flex items-center justify-center
+    shrink-0
+  "
+  style={{
+    background: `color-mix(in srgb, var(${colorVar}) 14%, transparent)`,
+  }}
+>
+  <Icon
+    className="
+      w-8 h-8
+      sm:w-9 sm:h-9
+      lg:w-11 lg:h-11
+    "
+    strokeWidth={1.8}
+    style={{
+      color: `var(${colorVar})`,
+    }}
+  />
+</div>
     </div>
   );
 }
