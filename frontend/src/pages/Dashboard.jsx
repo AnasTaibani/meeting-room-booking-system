@@ -7,7 +7,18 @@ import StatusBadge from "@/components/StatusBadge";
 import api from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Plus, CalendarClock, Clock3, Users, Zap, Activity } from "lucide-react";
+import {
+  Plus,
+  CalendarClock,
+  Clock3,
+  Users,
+  Zap,
+  Activity,
+  Sofa,
+  CalendarDays,
+  UserRound,
+  Wrench,
+} from "lucide-react";
 import { formatRange } from "@/lib/time";
 
 export default function Dashboard() {
@@ -87,11 +98,46 @@ export default function Dashboard() {
 
         {/* Stats strip */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
-          <StatTile colorVar="--status-available-fg" label="Available" value={counts.available || 0} testid="stat-available" loading={loading} delay={60} />
-          <StatTile colorVar="--status-booked-fg"    label="Booked"    value={counts.booked || 0} testid="stat-booked" loading={loading} delay={120} />
-          <StatTile colorVar="--status-occupied-fg"  label="Occupied"  value={counts.occupied || 0} testid="stat-occupied" loading={loading} delay={180} />
-          <StatTile colorVar="--status-maintenance-fg" label="Maintenance" value={counts.maintenance || 0} testid="stat-maintenance" loading={loading} delay={240} />
-        </div>
+          <StatTile
+  colorVar="--status-available-fg"
+  label="AVAILABLE"
+  value={counts.available || 0}
+  testid="stat-available"
+  loading={loading}
+  delay={60}
+  icon={Sofa}
+/>
+
+<StatTile
+  colorVar="--status-booked-fg"
+  label="BOOKED"
+  value={counts.booked || 0}
+  testid="stat-booked"
+  loading={loading}
+  delay={120}
+  icon={CalendarDays}
+/>
+
+<StatTile
+  colorVar="--status-occupied-fg"
+  label="OCCUPIED"
+  value={counts.occupied || 0}
+  testid="stat-occupied"
+  loading={loading}
+  delay={180}
+  icon={UserRound}
+/>
+
+<StatTile
+  colorVar="--status-maintenance-fg"
+  label="MAINTENANCE"
+  value={counts.maintenance || 0}
+  testid="stat-maintenance"
+  loading={loading}
+  delay={240}
+  icon={Wrench}
+/>
+</div>
 
         {/* Rooms */}
         <div className="flex items-end justify-between mb-4">
@@ -188,40 +234,60 @@ export default function Dashboard() {
   );
 }
 
-function StatTile({ colorVar, label, value, testid, loading, delay = 0 }) {
+function StatTile({
+  colorVar,
+  label,
+  value,
+  testid,
+  loading,
+  delay = 0,
+  icon,
+}) {
+  const Icon = icon;
+
   return (
     <div
       data-testid={testid}
-      className="surface surface-lift rise p-5 flex items-center justify-between"
+      className="surface surface-lift rise p-6 flex items-center justify-between overflow-hidden relative"
       style={{ animationDelay: `${delay}ms` }}
     >
       <div>
-        <div className="text-[10px] tracking-[0.22em] uppercase font-semibold mb-1.5" style={{ color: "var(--fg-soft)" }}>{label}</div>
-        {loading
-          ? <div className="skeleton h-8 w-12" />
-          : <div className="font-display text-[28px] tracking-tight" style={{ color: "var(--fg)" }}>{value}</div>}
+        <div
+          className="text-[11px] tracking-[0.24em] uppercase font-semibold mb-3"
+          style={{ color: "var(--fg-soft)" }}
+        >
+          {label}
+        </div>
+
+        {loading ? (
+          <div className="skeleton h-8 w-12" />
+        ) : (
+          <div
+            className="font-display text-[52px] leading-none tracking-tight"
+            style={{ color: "var(--fg)" }}
+          >
+            {value}
+          </div>
+        )}
       </div>
+
       <div
-  className="w-14 h-14 rounded-full flex items-center justify-center border"
-  style={{
-    background: `color-mix(in srgb, var(${colorVar}) 22%, transparent)`,
-    borderColor: `color-mix(in srgb, var(${colorVar}) 45%, transparent)`,
-    boxShadow: `0 0 30px color-mix(in srgb, var(${colorVar}) 35%, transparent)`,
-    backdropFilter: "blur(10px)",
-  }}
->
-  <span
-    className="w-3 h-3 rounded-full"
-    style={{
-      background: `var(${colorVar})`,
-      boxShadow: `0 0 12px var(${colorVar})`,
-    }}
-  />
-</div>
+        className="w-24 h-24 rounded-full flex items-center justify-center"
+        style={{
+          background: `color-mix(in srgb, var(${colorVar}) 16%, transparent)`,
+        }}
+      >
+        <Icon
+          size={42}
+          strokeWidth={1.8}
+          style={{
+            color: `var(${colorVar})`,
+          }}
+        />
+      </div>
     </div>
   );
 }
-
 function SkeletonCard() {
   return (
     <div className="surface p-0 overflow-hidden">

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { AlertTriangle, ArrowRight, Sun, Moon, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import logo from "@/assets/logo.png";
 
 function Wordmark({ size = "md" }) {
   const sizes = {
