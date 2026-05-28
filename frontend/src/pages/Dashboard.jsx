@@ -273,10 +273,10 @@ function StatTile({
 
       <div
   className="
-    w-16 h-16
-    sm:w-20 sm:h-20
-    lg:w-24 lg:h-24
-    rounded-[28px]
+    w-[22vw] h-[22vw]
+    max-w-[96px] max-h-[96px]
+    min-w-[64px] min-h-[64px]
+    rounded-[24px]
     flex items-center justify-center
     shrink-0
   "
@@ -286,9 +286,9 @@ function StatTile({
 >
   <Icon
     className="
-      w-8 h-8
-      sm:w-9 sm:h-9
-      lg:w-11 lg:h-11
+      w-[9vw] h-[9vw]
+      max-w-[42px] max-h-[42px]
+      min-w-[26px] min-h-[26px]
     "
     strokeWidth={1.8}
     style={{
