@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { LayoutDashboard, CalendarRange, ClipboardList, ShieldCheck, LogOut, Sun, Moon } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import logo from "@/assets/metamorphosys-logo.png";
+import logo from "@/assets/logo.png";
 
 function Wordmark({ size = "sm" }) {
   const sizes = {
