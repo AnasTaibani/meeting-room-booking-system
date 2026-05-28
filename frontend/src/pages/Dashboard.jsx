@@ -273,7 +273,7 @@ function StatTile({
 
       <div
   className="
-    w-[22vw] h-[22vw]
+    w-[19vw] h-[19vw]
     max-w-[96px] max-h-[96px]
     min-w-[64px] min-h-[64px]
     rounded-[24px]
@@ -286,7 +286,7 @@ function StatTile({
 >
   <Icon
     className="
-      w-[9vw] h-[9vw]
+      w-[8vw] h-[8vw]
       max-w-[42px] max-h-[42px]
       min-w-[26px] min-h-[26px]
     "
