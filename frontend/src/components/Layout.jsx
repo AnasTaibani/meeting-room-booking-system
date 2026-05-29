@@ -14,29 +14,13 @@ function Wordmark({ size = "sm" }) {
   };
   const s = sizes[size] || sizes.sm;
   return (
-    <div className="flex items-center gap-3 px-1">
-  <img
-    src={logo}
-    alt="Metamorphosys Logo"
-    className="w-10 h-10 object-contain"
-  />
-
-  <div>
-    <h1
-      className="text-[18px] font-semibold leading-none"
-      style={{ color: "var(--fg)" }}
-    >
-      Metamorphosys
-    </h1>
-
-    <p
-      className="text-[10px] tracking-[0.25em] mt-1"
-      style={{ color: "var(--fg-soft)" }}
-    >
-      TECHNOLOGIES
-    </p>
+    <div className="flex items-center px-1">
+    <img
+      src={logo}
+      alt="Metamorphosys Technologies"
+      className="h-10 md:h-12 w-auto object-contain"
+    />
   </div>
-</div>
   );
 }
 
