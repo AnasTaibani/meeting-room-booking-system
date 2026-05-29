@@ -18,7 +18,7 @@ function Wordmark({ size = "md" }) {
   };
   const s = sizes[size] || sizes.md;
   return (
-  <div className="flex justify-center mb-6">
+  <div className="flex justify-start mb-6">
     <img
       src={logo}
       alt="Metamorphosys Technologies"
