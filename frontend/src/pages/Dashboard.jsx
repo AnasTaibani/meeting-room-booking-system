@@ -97,48 +97,7 @@ export default function Dashboard() {
         </div>
 
         {/* Stats strip */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
-          <StatTile
-  colorVar="--status-available-fg"
-  label="AVAILABLE"
-  value={counts.available || 0}
-  testid="stat-available"
-  loading={loading}
-  delay={60}
-  icon={Sofa}
-/>
-
-<StatTile
-  colorVar="--status-booked-fg"
-  label="BOOKED"
-  value={counts.booked || 0}
-  testid="stat-booked"
-  loading={loading}
-  delay={120}
-  icon={CalendarDays}
-/>
-
-<StatTile
-  colorVar="--status-occupied-fg"
-  label="OCCUPIED"
-  value={counts.occupied || 0}
-  testid="stat-occupied"
-  loading={loading}
-  delay={180}
-  icon={UserRound}
-/>
-
-<StatTile
-  colorVar="--status-maintenance-fg"
-  label="MAINTENANCE"
-  value={counts.maintenance || 0}
-  testid="stat-maintenance"
-  loading={loading}
-  delay={240}
-  icon={Wrench}
-/>
-</div>
-
+       
         {/* Rooms */}
         <div className="flex items-end justify-between mb-4">
           <div>
