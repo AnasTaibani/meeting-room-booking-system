@@ -14,11 +14,11 @@ function Wordmark({ size = "sm" }) {
   };
   const s = sizes[size] || sizes.sm;
   return (
-    <div className="flex items-center px-1">
+     <div className="flex items-center px-1 py-1">
     <img
       src={logo}
       alt="Metamorphosys Technologies"
-      className="h-10 md:h-12 w-auto object-contain"
+      className="h-14 md:h-16 w-auto object-contain"
     />
   </div>
   );
