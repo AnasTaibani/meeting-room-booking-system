@@ -18,14 +18,14 @@ function Wordmark({ size = "md" }) {
   };
   const s = sizes[size] || sizes.md;
   return (
-    <div className="flex items-center px-1 py-1">
+  <div className="flex justify-center mb-6">
     <img
       src={logo}
       alt="Metamorphosys Technologies"
-      className="h-14 md:h-16 w-auto object-contain"
+      className="h-24 md:h-32 w-auto object-contain"
     />
   </div>
-  );
+);
 }
 
 const SEED = [
