@@ -47,9 +47,11 @@ export default function BookingDialog({ open, onOpenChange, rooms, initialRoomId
 
   const wasOpenRef = useRef(open);
   const editingIdRef = useRef(editing?.id ?? null);
+  const [acceptedGuidelines, setAcceptedGuidelines] = useState(false);
 
   useEffect(() => {
     const transitionedToOpen = open && !wasOpenRef.current;
+    setAcceptedGuidelines(false);
     const editingTargetChanged = (editing?.id ?? null) !== editingIdRef.current;
     if (transitionedToOpen || (open && editingTargetChanged)) {
       const fresh = buildInitialForm({ editing, initialRoomId, rooms });
@@ -209,21 +211,74 @@ export default function BookingDialog({ open, onOpenChange, rooms, initialRoomId
             </div>
           )}
 
-          <DialogFooter className="gap-2 pt-2">
-            <Button
-              type="button" data-testid="booking-cancel"
-              onClick={() => onOpenChange(false)}
-              className="btn-secondary h-11 px-5"
+          {/* Guidelines */}
+        <div
+          className="rounded-xl p-4 space-y-3 mb-4"
+          style={{
+            background: "var(--surface-muted)",
+            border: "1px solid var(--border)",
+          }}
+        >
+          <h4
+            className="text-sm font-semibold"
+            style={{ color: "var(--fg)" }}
+          >
+            Meeting Room Guidelines
+          </h4>
+
+          <ul
+            className="text-xs space-y-1"
+            style={{ color: "var(--fg-soft)" }}
+          >
+            <li>• Do not exceed your booked duration</li>
+            <li>• Leave the room clean after use</li>
+            <li>• Switch off lights and equipment before leaving</li>
+            <li>• Return markers, remotes and accessories</li>
+            <li>• Cancel bookings that are no longer required</li>
+            <li>• Report any damages or issues immediately</li>
+            <li>• Dispose of food and beverages responsibly</li>
+          </ul>
+
+          <label className="flex items-start gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={acceptedGuidelines}
+              onChange={(e) => setAcceptedGuidelines(e.target.checked)}
+              className="mt-0.5"
+            />
+
+            <span
+              className="text-xs"
+              style={{ color: "var(--fg)" }}
             >
-              Cancel
-            </Button>
-            <Button
-              type="submit" disabled={saving} data-testid="booking-submit"
-              className="btn-primary h-11 px-5 font-medium"
-            >
-              {saving ? "Saving..." : isEdit ? "Save changes" : "Confirm booking"}
-            </Button>
-          </DialogFooter>
+              I agree to follow the meeting room guidelines
+            </span>
+          </label>
+        </div>
+
+        <DialogFooter className="gap-2 pt-2">
+          <Button
+            type="button"
+            data-testid="booking-cancel"
+            onClick={() => onOpenChange(false)}
+            className="btn-secondary h-11 px-5"
+          >
+            Cancel
+          </Button>
+
+          <Button
+            type="submit"
+            disabled={saving || !acceptedGuidelines}
+            data-testid="booking-submit"
+            className="btn-primary h-11 px-5 font-medium"
+          >
+            {saving
+              ? "Saving..."
+              : isEdit
+              ? "Save changes"
+              : "Confirm booking"}
+          </Button>
+        </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

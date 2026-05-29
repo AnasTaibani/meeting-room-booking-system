@@ -29,6 +29,8 @@ export default function Dashboard() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [findRoomOpen, setFindRoomOpen] = useState(false);
   const [initialRoomId, setInitialRoomId] = useState(null);
+  const [issueDialogOpen, setIssueDialogOpen] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState(null);
 
   const load = useCallback(async () => {
     try {
