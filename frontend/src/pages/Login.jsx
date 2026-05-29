@@ -10,6 +10,15 @@ import { AlertTriangle, ArrowRight, Sun, Moon, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import logoLight from "@/assets/logo-light.png";
 import logoDark from "@/assets/logo-dark.png";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+
 function Wordmark({ size = "md" }) {
   const sizes = {
     sm: { primary: 18, secondary: 8, gap: 4, secLetter: "0.32em" },
@@ -35,6 +44,39 @@ const SEED = [
   { email: "alex@company.com",   pwd: "employee123", role: "Engineering" },
   { email: "priya@company.com",  pwd: "employee123", role: "Design"      },
 ];
+
+const TEAMS = [
+  "ACE UAE",
+  "AI & Data Science",
+  "Capacity Building",
+  "Founder's Office",
+  "HR & Admin",
+  "Management",
+
+  "MDIP",
+  "Pre-Sales",
+  "Product / Platform",
+  "DevOps",
+  "InsurConnect",
+
+  "PMLI India",
+  "SBIL India",
+
+  "Manulife Hong Kong",
+  "Manulife Vietnam",
+
+  "Prudential Indonesia",
+  "Prudential Singapore",
+
+  "Sun Life Hong Kong",
+  "Sun Life India",
+  "Sun Life Malaysia",
+  "Sun Life Vietnam",
+
+  "Sales & Marketing",
+  "Shared Functions",
+];
+
 
 export default function Login() {
   const { user, login, register } = useAuth();
@@ -69,7 +111,7 @@ export default function Login() {
     setErr(""); setBusy(true);
     const r = await register({
       email: suEmail.trim().toLowerCase(), name: suName.trim(),
-      team: suTeam.trim(), password: suPwd,
+      team: suTeam, password: suPwd,
     });
     setBusy(false);
     if (!r.ok) return setErr(r.error);
@@ -221,7 +263,27 @@ export default function Login() {
                     <Input data-testid="signup-name" required value={suName} onChange={(e) => setSuName(e.target.value)} className="rounded-lg h-11" style={inputStyle} />
                   </Field>
                   <Field label="Team">
-                    <Input data-testid="signup-team" required value={suTeam} onChange={(e) => setSuTeam(e.target.value)} placeholder="e.g. Product" className="rounded-lg h-11" style={inputStyle} />
+                    <Select
+                      value={suTeam}
+                      onValueChange={setSuTeam}
+                      required
+                    >
+                      <SelectTrigger
+                        data-testid="signup-team"
+                        className="rounded-lg h-11"
+                        style={inputStyle}
+                      >
+                        <SelectValue placeholder="Select Team" />
+                      </SelectTrigger>
+
+                      <SelectContent>
+                        {TEAMS.map((team) => (
+                          <SelectItem key={team} value={team}>
+                            {team}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </Field>
                 </div>
                 <Field label="Work email">
