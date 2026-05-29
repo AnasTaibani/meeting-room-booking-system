@@ -18,6 +18,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
 
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
 
 # -----------------------------------------------------------------------------
 # Setup
@@ -119,6 +123,26 @@ class BookingOut(BaseModel):
 class MaintenanceIn(BaseModel):
     maintenance: bool
 
+class IssueIn(BaseModel):
+    room_id: str
+    issue_type: str
+    comments: Optional[str] = ""
+
+
+class IssueOut(BaseModel):
+    id: str
+    room_id: str
+    room_name: str
+    issue_type: str
+    comments: str
+    reported_by: str
+    reported_email: str
+    reported_team: str
+    status: Literal["open", "closed"]
+    created_at: datetime
+    resolved_by: Optional[str] = None
+    resolved_at: Optional[datetime] = None
+
 
 
 
@@ -216,6 +240,55 @@ async def require_admin(user: dict = Depends(get_current_user)) -> dict:
 # -----------------------------------------------------------------------------
 def now_utc() -> datetime:
     return datetime.now(timezone.utc)
+
+def send_issue_email(issue: dict):
+    try:
+        smtp_host = os.getenv("SMTP_HOST")
+        smtp_port = int(os.getenv("SMTP_PORT", "587"))
+        smtp_user = os.getenv("SMTP_USER")
+        smtp_password = os.getenv("SMTP_PASSWORD")
+        recipient = os.getenv("ISSUE_REPORT_EMAIL")
+
+        if not all([smtp_host, smtp_user, smtp_password, recipient]):
+            logger.warning("SMTP variables missing. Skipping email.")
+            return
+
+        msg = MIMEMultipart()
+        msg["From"] = smtp_user
+        msg["To"] = recipient
+        msg["Subject"] = f"Meeting Room Issue - {issue['room_name']}"
+
+        body = f"""
+            Reported By: {issue['reported_by']}
+            Email: {issue['reported_email']}
+            Team: {issue['reported_team']}
+
+            Room:
+            {issue['room_name']}
+
+            Issue:
+            {issue['issue_type']}
+
+            Comments:
+            {issue['comments']}
+            """
+
+        msg.attach(MIMEText(body, "plain"))
+
+        server = smtplib.SMTP(smtp_host, smtp_port)
+        server.starttls()
+        server.login(smtp_user, smtp_password)
+        server.sendmail(
+            smtp_user,
+            recipient,
+            msg.as_string()
+        )
+        server.quit()
+
+    except Exception as e:
+        logger.exception("Failed to send issue email: %s", e)
+
+
 
 
 def to_aware(dt: datetime) -> datetime:
@@ -553,6 +626,104 @@ async def cancel_booking(booking_id: str, user: dict = Depends(get_current_user)
     await db.bookings.update_one({"id": booking_id}, {"$set": {"cancelled": True, "cancelled_at": now_utc().isoformat()}})
     return {"ok": True}
 
+@api.post("/issues", response_model=IssueOut)
+async def create_issue(
+    payload: IssueIn,
+    user: dict = Depends(get_current_user)
+):
+    room = await db.rooms.find_one(
+        {"id": payload.room_id},
+        {"_id": 0}
+    )
+
+    if not room:
+        raise HTTPException(
+            status_code=404,
+            detail="Room not found"
+        )
+
+    issue = {
+        "id": str(uuid.uuid4()),
+        "room_id": room["id"],
+        "room_name": room["name"],
+        "issue_type": payload.issue_type,
+        "comments": (payload.comments or "").strip(),
+        "reported_by": user["name"],
+        "reported_email": user["email"],
+        "reported_team": user["team"],
+        "status": "open",
+        "created_at": now_utc().isoformat(),
+        "resolved_by": None,
+        "resolved_at": None,
+    }
+
+    await db.reported_issues.insert_one(issue)
+
+    send_issue_email(issue)
+
+    return {
+        **issue,
+        "created_at": datetime.fromisoformat(issue["created_at"])
+    }
+
+@api.get("/issues", response_model=List[IssueOut])
+async def list_issues(
+    _admin: dict = Depends(require_admin)
+):
+    issues = await db.reported_issues.find(
+        {},
+        {"_id": 0}
+    ).to_list(2000)
+
+    issues.sort(
+        key=lambda x: x["created_at"],
+        reverse=True
+    )
+
+    result = []
+
+    for issue in issues:
+        issue["created_at"] = datetime.fromisoformat(
+            issue["created_at"]
+        )
+
+        if issue.get("resolved_at"):
+            issue["resolved_at"] = datetime.fromisoformat(
+                issue["resolved_at"]
+            )
+
+        result.append(issue)
+
+    return result
+
+@api.patch("/issues/{issue_id}/close")
+async def close_issue(
+    issue_id: str,
+    admin: dict = Depends(require_admin)
+):
+    issue = await db.reported_issues.find_one(
+        {"id": issue_id},
+        {"_id": 0}
+    )
+
+    if not issue:
+        raise HTTPException(
+            status_code=404,
+            detail="Issue not found"
+        )
+
+    await db.reported_issues.update_one(
+        {"id": issue_id},
+        {
+            "$set": {
+                "status": "closed",
+                "resolved_by": admin["name"],
+                "resolved_at": now_utc().isoformat(),
+            }
+        }
+    )
+
+    return {"ok": True}
 
 # ---------------------- Admin -----------------------------------------------
 @api.get("/admin/bookings", response_model=List[BookingOut])
@@ -644,6 +815,7 @@ async def seed_admin_and_users():
         ("users", "id", True),
         ("rooms", "id", True),
         ("bookings", "id", True),
+        ("reported_issues", "id", True),
     ]:
         try:
             await db[idx[0]].create_index(idx[1], unique=idx[2])

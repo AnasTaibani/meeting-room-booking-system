@@ -72,14 +72,6 @@ export default function RoomCard({ room, onBook,onReportIssue, animateDelay = 0 
           >
             Book Room
           </button>
-
-          <button
-            data-testid={`report-issue-${room.id}`}
-            onClick={() => onReportIssue?.(room)}
-            className="btn-secondary flex items-center justify-center px-4 py-2.5 text-sm font-medium"
-          >
-            Report Issue
-          </button>
 </div>
         </div>
       </div>
