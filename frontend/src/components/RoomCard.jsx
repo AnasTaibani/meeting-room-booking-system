@@ -64,13 +64,13 @@ export default function RoomCard({ room, onBook,onReportIssue, animateDelay = 0 
           )}
 
          <div className="grid grid-cols-2 gap-2">
-          <button
+        <button
             data-testid={`book-room-${room.id}`}
             onClick={() => onBook?.(room)}
             disabled={disabled}
-            className="btn-primary sheen flex items-center justify-center px-4 py-2.5 text-sm font-medium"
-          >
-            Book Room
+            className="btn-primary sheen w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium disabled:hover:translate-y-0">
+            <span>Book this room</span>
+            <ArrowUpRight className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12" />
           </button>
 </div>
         </div>
