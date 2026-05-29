@@ -25,6 +25,7 @@ function Wordmark({ size = "md" }) {
     md: { primary: 22, secondary: 9, gap: 5, secLetter: "0.34em" },
     lg: { primary: 30, secondary: 10, gap: 7, secLetter: "0.38em" },
   };
+  const s = sizes[size] || sizes.sm;
   const { theme } = useTheme();
 
   return (
@@ -68,10 +69,10 @@ const TEAMS = [
   "Prudential Indonesia",
   "Prudential Singapore",
 
-  "Sun Life Hong Kong",
-  "Sun Life India",
-  "Sun Life Malaysia",
-  "Sun Life Vietnam",
+  "SunLife Hong Kong",
+  "SunLife India",
+  "SunLife Malaysia",
+  "SunLife Vietnam",
 
   "Sales & Marketing",
   "Shared Functions",

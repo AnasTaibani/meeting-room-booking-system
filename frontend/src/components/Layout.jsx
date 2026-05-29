@@ -7,12 +7,13 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import logoLight from "@/assets/logo-light.png";
 import logoDark from "@/assets/logo-dark.png";
 
-function Wordmark({ size = "sm" }) {
+function Wordmark({ size = "md" }) {
   const sizes = {
     sm: { primary: 18, secondary: 8, gap: 4, secLetter: "0.32em" },
     md: { primary: 22, secondary: 9, gap: 5, secLetter: "0.34em" },
     lg: { primary: 30, secondary: 10, gap: 7, secLetter: "0.38em" },
   };
+  const s = sizes[size] || sizes.sm;
   const { theme } = useTheme();
 
   return (
@@ -20,9 +21,9 @@ function Wordmark({ size = "sm" }) {
       <img
         src={theme === "dark" ? logoDark : logoLight}
         alt="Metamorphosys Technologies"
-        className="h-[120px] md:h-[160px] w-auto object-contain"
-      />
-    </div>
+      className="h-14 md:h-16 w-auto object-contain"
+    />
+  </div>
   );
 }
 
