@@ -4,7 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { LayoutDashboard, CalendarRange, ClipboardList, ShieldCheck, LogOut, Sun, Moon } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import logo from "@/assets/logo.png";
+import logoLight from "@/assets/logo-light.png";
+import logoDark from "@/assets/logo-dark.png";
 
 function Wordmark({ size = "sm" }) {
   const sizes = {
@@ -12,15 +13,16 @@ function Wordmark({ size = "sm" }) {
     md: { primary: 22, secondary: 9, gap: 5, secLetter: "0.34em" },
     lg: { primary: 30, secondary: 10, gap: 7, secLetter: "0.38em" },
   };
-  const s = sizes[size] || sizes.sm;
+  const { theme } = useTheme();
+
   return (
-     <div className="flex items-center px-1 py-1">
-    <img
-      src={logo}
-      alt="Metamorphosys Technologies"
-      className="h-14 md:h-16 w-auto object-contain"
-    />
-  </div>
+    <div className="flex justify-start mb-6">
+      <img
+        src={theme === "dark" ? logoDark : logoLight}
+        alt="Metamorphosys Technologies"
+        className="h-[120px] md:h-[160px] w-auto object-contain"
+      />
+    </div>
   );
 }
 
