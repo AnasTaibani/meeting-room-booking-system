@@ -63,7 +63,6 @@ export default function RoomCard({ room, onBook,onReportIssue, animateDelay = 0 
             <Meta label="Today" title="Open all day" sub="No meetings scheduled" />
           )}
 
-         <div className="grid grid-cols-2 gap-2">
         <button
             data-testid={`book-room-${room.id}`}
             onClick={() => onBook?.(room)}
@@ -72,10 +71,9 @@ export default function RoomCard({ room, onBook,onReportIssue, animateDelay = 0 
             <span>Book this room</span>
             <ArrowUpRight className="w-4 h-4 transition-transform duration-200 group-hover:rotate-12" />
           </button>
-</div>
+        </div>
         </div>
       </div>
-    </div>
   );
 }
 
