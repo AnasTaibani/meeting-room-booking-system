@@ -202,9 +202,26 @@ export default function Layout({ children }) {
           ))}
         </div>
 
-        <main className="flex-1 overflow-y-auto px-5 md:px-10 lg:px-14 py-8 pb-24 md:pb-10" data-testid="main-content">
+        <div className="flex-1 flex flex-col">
+        <main
+          className="flex-1 overflow-y-auto px-5 md:px-10 lg:px-14 py-8 pb-8"
+          data-testid="main-content"
+        >
           {children}
         </main>
+
+        <div
+          className="hidden md:flex justify-end px-8 pb-4"
+          style={{ color: "var(--fg-faint)" }}
+        >
+          <div
+            className="hidden md:flex justify-end px-8 pb-4 text-[10px]"
+            style={{ color: "var(--fg-faint)" }}
+          >
+            Meeting Room Booking System v1.0 • © 2026 Metamorphosys Technologies • Developed by Anas Taibani
+          </div>
+        </div>
+      </div>
       </div>
     </div>
   );
