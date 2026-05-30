@@ -211,15 +211,10 @@ export default function Layout({ children }) {
         </main>
 
         <div
-          className="hidden md:flex justify-end px-8 pb-4"
+          className="hidden md:flex justify-center pb-4 text-[10px] opacity-60"
           style={{ color: "var(--fg-faint)" }}
         >
-          <div
-            className="hidden md:flex justify-center px-8 pb-4 text-[10px] opacity-60"
-            style={{ color: "var(--fg-faint)" }}
-          >
-            Meeting Room Booking System v1.0 • © 2026 Metamorphosys Technologies • Developed by Anas Taibani
-          </div>
+          Meeting Room Booking System v1.0 • © 2026 Metamorphosys Technologies • Developed by Anas Taibani
         </div>
       </div>
       </div>
