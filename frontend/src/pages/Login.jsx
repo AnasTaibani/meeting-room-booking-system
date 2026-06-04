@@ -94,6 +94,9 @@ export default function Login() {
 
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
+  const handleMicrosoftLogin = () => {
+  toast.info("Microsoft SSO integration coming soon");
+};
 
   if (user && user.id) return <Navigate to="/" replace />;
 
@@ -202,7 +205,60 @@ export default function Login() {
             </TabsList>
 
             <TabsContent value="signin" className="mt-0">
-              <form onSubmit={submitSignIn} className="space-y-4">
+
+                  <div className="mb-6">
+                    <Button
+                      type="button"
+                      onClick={handleMicrosoftLogin}
+                      className="w-full h-11 rounded-lg font-medium"
+                      variant="outline"
+                      style={{
+                        background: "var(--surface)",
+                        border: "1px solid var(--border)",
+                        color: "var(--fg)",
+                      }}
+                    >
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 23 23"
+                        className="mr-3"
+                      >
+                        <rect width="10" height="10" fill="#F25022" />
+                        <rect x="13" width="10" height="10" fill="#7FBA00" />
+                        <rect y="13" width="10" height="10" fill="#00A4EF" />
+                        <rect x="13" y="13" width="10" height="10" fill="#FFB900" />
+                      </svg>
+
+                      Sign in with Microsoft
+                    </Button>
+
+                    <div className="relative my-5">
+                      <div
+                        className="absolute inset-0 flex items-center"
+                        aria-hidden="true"
+                      >
+                        <div
+                          className="w-full border-t"
+                          style={{ borderColor: "var(--border)" }}
+                        />
+                      </div>
+
+                      <div className="relative flex justify-center">
+                        <span
+                          className="px-3 text-[10px] tracking-[0.18em] uppercase"
+                          style={{
+                            background: "var(--bg)",
+                            color: "var(--fg-soft)",
+                          }}
+                        >
+                          OR
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+  <form onSubmit={submitSignIn} className="space-y-4">
                 <Field label="Work email">
                   <Input
                     data-testid="login-email" type="email" required

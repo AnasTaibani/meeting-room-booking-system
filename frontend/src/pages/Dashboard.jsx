@@ -115,12 +115,19 @@ export default function Dashboard() {
           {loading
             ? Array.from({ length: 3 }).map((_, i) => <SkeletonCard key={`skl-${i}`} />)
             : rooms.map((r, i) => (
-                <RoomCard
-                  key={r.id}
-                  room={r}
-                  animateDelay={i * 80}
-                  onBook={(room) => { setInitialRoomId(room.id); setDialogOpen(true); }}
-                />
+               <RoomCard
+                key={r.id}
+                room={r}
+                animateDelay={i * 80}
+                onBook={(room) => {S
+                  setInitialRoomId(room.id);
+                  setDialogOpen(true);
+                }}
+                onReportIssue={(room) => {
+                  setSelectedRoom(room);
+                  setIssueDialogOpen(true);
+                }}
+              />
               ))}
         </div>
 
