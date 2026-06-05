@@ -21,6 +21,8 @@ from pydantic import BaseModel, Field, EmailStr, ConfigDict
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import requests
+from fastapi.responses import RedirectResponse
 
 
 # -----------------------------------------------------------------------------
@@ -35,6 +37,25 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 JWT_ALGORITHM = "HS256"
+AZURE_TENANT_ID = os.getenv("AZURE_TENANT_ID")
+AZURE_CLIENT_ID = os.getenv("AZURE_CLIENT_ID")
+AZURE_CLIENT_SECRET = os.getenv("AZURE_CLIENT_SECRET")
+
+AZURE_AUTHORITY = (
+    f"https://login.microsoftonline.com/{AZURE_TENANT_ID}"
+)
+
+AZURE_SCOPE = [
+    "openid",
+    "profile",
+    "email",
+    "User.Read",
+]
+
+FRONTEND_URL = os.getenv(
+    "FRONTEND_URL",
+    "https://meeting-room-booking-system-umber.vercel.app"
+)
 
 ROOMS_SEED = [
     {"id": "room-1", "name": "Meeting Room 1", "capacity": 6,  "description": "Cozy 6-seater for stand-ups and small syncs."},
@@ -435,6 +456,24 @@ async def login(payload: LoginIn):
 @api.post("/auth/logout")
 async def logout():
     return {"ok": True}
+
+@api.get("/auth/microsoft/login")
+async def microsoft_login():
+
+    redirect_uri = (
+        f"{FRONTEND_URL}/"
+    )
+
+    auth_url = (
+        f"{AZURE_AUTHORITY}/oauth2/v2.0/authorize"
+        f"?client_id={AZURE_CLIENT_ID}"
+        f"&response_type=code"
+        f"&redirect_uri={redirect_uri}"
+        f"&response_mode=query"
+        f"&scope={' '.join(AZURE_SCOPE)}"
+    )
+
+    return RedirectResponse(auth_url)
 
 
 @api.get("/auth/me")

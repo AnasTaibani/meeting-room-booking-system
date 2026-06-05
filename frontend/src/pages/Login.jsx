@@ -95,7 +95,8 @@ export default function Login() {
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const handleMicrosoftLogin = () => {
-  toast.info("Microsoft SSO integration coming soon");
+  window.location.href =
+    `${API_BASE}/api/auth/microsoft/login`;
 };
 
   if (user && user.id) return <Navigate to="/" replace />;
