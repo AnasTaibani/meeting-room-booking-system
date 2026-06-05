@@ -186,7 +186,7 @@ export default function Login() {
           </div>
 
           <div className="text-[10px] tracking-[0.24em] uppercase font-semibold mb-3" style={{ color: "var(--fg-soft)" }}>Account access</div>
-          <h2 className="font-display text-[32px] tracking-tight mb-8" style={{ color: "var(--fg)" }}>Sign in to your workspace</h2>
+          <h2 className="font-display text-[32px] tracking-tight mb-8" style={{ color: "var(--fg)" }}>ign in to your workspace</h2>
 
           <Tabs value={mode} onValueChange={setMode} className="w-full">
             <TabsList
