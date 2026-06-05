@@ -10,7 +10,7 @@ import MyBookings from "@/pages/MyBookings";
 import CalendarView from "@/pages/CalendarView";
 import AdminPanel from "@/pages/AdminPanel";
 import { Toaster } from "sonner";
-import AuthCallback from "@/pages/AuthCallback";
+import AuthCallback from "@/pages/Authcallback";
 
 function AppToaster() {
   const { theme } = useTheme();
