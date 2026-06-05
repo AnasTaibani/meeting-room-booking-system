@@ -537,7 +537,7 @@ async def logout():
 async def microsoft_login():
 
     redirect_uri = (
-    f"{BACKEND_URL}/api/auth/microsoft/callback"
+    f"{FRONTEND_URL}/api/auth/microsoft/callback"
 )
 
     auth_url = (
