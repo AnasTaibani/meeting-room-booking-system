@@ -96,7 +96,7 @@ export default function Login() {
   const [busy, setBusy] = useState(false);
   const handleMicrosoftLogin = () => {
   window.location.href =
-    `${API_BASE}/api/auth/microsoft/login`;
+    `${process.env.REACT_APP_BACKEND_URL}/api/auth/microsoft/login`;
 };
 
   if (user && user.id) return <Navigate to="/" replace />;
