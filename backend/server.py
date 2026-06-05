@@ -40,6 +40,10 @@ JWT_ALGORITHM = "HS256"
 AZURE_TENANT_ID = os.getenv("AZURE_TENANT_ID")
 AZURE_CLIENT_ID = os.getenv("AZURE_CLIENT_ID")
 AZURE_CLIENT_SECRET = os.getenv("AZURE_CLIENT_SECRET")
+BACKEND_URL = os.getenv(
+    "BACKEND_URL",
+    "https://meeting-room-booking-system-a22r.onrender.com"
+)
 
 AZURE_AUTHORITY = (
     f"https://login.microsoftonline.com/{AZURE_TENANT_ID}"
@@ -453,6 +457,78 @@ async def login(payload: LoginIn):
     }
 
 
+@api.get("/auth/microsoft/callback")
+async def microsoft_callback(code: str):
+
+    token_url = (
+        f"{AZURE_AUTHORITY}/oauth2/v2.0/token"
+    )
+
+    response = requests.post(
+        token_url,
+        data={
+            "client_id": AZURE_CLIENT_ID,
+            "client_secret": AZURE_CLIENT_SECRET,
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": f"{BACKEND_URL}/api/auth/microsoft/callback",
+        },
+    )
+
+    token_data = response.json()
+
+    access_token = token_data.get("access_token")
+
+    if not access_token:
+        raise HTTPException(
+            status_code=400,
+            detail="Failed to obtain Microsoft access token"
+        )
+
+    graph_response = requests.get(
+        "https://graph.microsoft.com/v1.0/me",
+        headers={
+            "Authorization": f"Bearer {access_token}"
+        },
+    )
+
+    profile = graph_response.json()
+
+    email = (
+        profile.get("mail")
+        or profile.get("userPrincipalName")
+    )
+
+    name = profile.get("displayName")
+
+    user = await db.users.find_one(
+        {"email": email.lower()}
+    )
+
+    if not user:
+
+        user = {
+            "id": str(uuid.uuid4()),
+            "email": email.lower(),
+            "name": name,
+            "team": "Shared Functions",
+            "role": "employee",
+            "password_hash": "",
+            "created_at": now_utc().isoformat(),
+        }
+
+        await db.users.insert_one(user)
+
+    jwt_token = create_access_token(
+        user["id"],
+        user["email"]
+    )
+
+    return RedirectResponse(
+        f"{FRONTEND_URL}/auth/callback"
+        f"?token={jwt_token}"
+    )
+
 @api.post("/auth/logout")
 async def logout():
     return {"ok": True}
@@ -461,8 +537,8 @@ async def logout():
 async def microsoft_login():
 
     redirect_uri = (
-        f"{FRONTEND_URL}/"
-    )
+    f"{BACKEND_URL}/api/auth/microsoft/callback"
+)
 
     auth_url = (
         f"{AZURE_AUTHORITY}/oauth2/v2.0/authorize"

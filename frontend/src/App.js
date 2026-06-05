@@ -10,6 +10,7 @@ import MyBookings from "@/pages/MyBookings";
 import CalendarView from "@/pages/CalendarView";
 import AdminPanel from "@/pages/AdminPanel";
 import { Toaster } from "sonner";
+import AuthCallback from "@/pages/AuthCallback";
 
 function AppToaster() {
   const { theme } = useTheme();
@@ -72,6 +73,14 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route path="/login" element={<Login />} />
+
+              <Route
+                path="/auth/callback"
+                element={<AuthCallback />}  
+              />
+
+              <Route path="/" element={<Dashboard />} />
             </Routes>
           </BrowserRouter>
           <AppToaster />
