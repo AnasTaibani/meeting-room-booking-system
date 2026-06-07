@@ -73,12 +73,6 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
-              
-
-              <Route
-                path="/auth/callback"
-                element={<AuthCallback />}  
-              />
 
             </Routes>
           </BrowserRouter>
