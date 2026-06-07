@@ -539,21 +539,17 @@ async def microsoft_login():
     redirect_uri = FRONTEND_URL
 
     auth_url = (
-        f"{AZURE_AUTHORITY}/oauth2/v2.0/authorize"
-        f"?client_id={AZURE_CLIENT_ID}"
-        f"&response_type=code"
-        f"&redirect_uri={redirect_uri}"
-        f"&response_mode=query"
-        f"&scope={' '.join(AZURE_SCOPE)}"
-    )
+    f"{AZURE_AUTHORITY}/oauth2/v2.0/authorize"
+    f"?client_id={AZURE_CLIENT_ID}"
+    f"&response_type=code"
+    f"&redirect_uri={redirect_uri}"
+    f"&response_mode=query"
+    f"&scope={' '.join(AZURE_SCOPE)}"
+    f"&prompt=login"
+)
 
-    return {
-        "auth_url": auth_url,
-        "azure_authority": AZURE_AUTHORITY,
-        "client_id": AZURE_CLIENT_ID,
-        "frontend_url": FRONTEND_URL,
-        "scope": AZURE_SCOPE,
-    }
+    return RedirectResponse(auth_url)
+
 
 @api.get("/auth/me")
 async def me(user: dict = Depends(get_current_user)):
