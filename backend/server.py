@@ -547,8 +547,13 @@ async def microsoft_login():
         f"&scope={' '.join(AZURE_SCOPE)}"
     )
 
-    return RedirectResponse(auth_url)
-
+    return {
+        "auth_url": auth_url,
+        "azure_authority": AZURE_AUTHORITY,
+        "client_id": AZURE_CLIENT_ID,
+        "frontend_url": FRONTEND_URL,
+        "scope": AZURE_SCOPE,
+    }
 
 @api.get("/auth/me")
 async def me(user: dict = Depends(get_current_user)):

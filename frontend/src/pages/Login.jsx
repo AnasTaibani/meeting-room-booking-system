@@ -95,8 +95,12 @@ export default function Login() {
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const handleMicrosoftLogin = () => {
-  window.location.href =
-    `${process.env.REACT_APP_BACKEND_URL}/api/auth/microsoft/login`;
+  const url =
+    "https://meeting-room-booking-system-a22r.onrender.com/api/auth/microsoft/login";
+
+  console.log("Microsoft Login URL:", url);
+
+  window.location.href = url;
 };
 
   if (user && user.id) return <Navigate to="/" replace />;
