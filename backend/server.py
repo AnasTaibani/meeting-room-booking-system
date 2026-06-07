@@ -536,7 +536,9 @@ async def logout():
 @api.get("/auth/microsoft/login")
 async def microsoft_login():
 
-    redirect_uri = FRONTEND_URL
+    redirect_uri = (
+        f"{BACKEND_URL}/api/auth/microsoft/callback"
+    )
 
     auth_url = (
     f"{AZURE_AUTHORITY}/oauth2/v2.0/authorize"
