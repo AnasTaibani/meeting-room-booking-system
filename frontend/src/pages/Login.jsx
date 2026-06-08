@@ -202,11 +202,6 @@ export default function Login() {
                 className="rounded-lg py-2 text-sm tracking-tight transition-all"
                 style={mode === "signin" ? { background: "var(--surface)", color: "var(--fg)", boxShadow: "var(--shadow-xs)" } : { color: "var(--fg-soft)" }}
               >Sign in</TabsTrigger>
-              <TabsTrigger
-                data-testid="auth-tab-signup" value="signup"
-                className="rounded-lg py-2 text-sm tracking-tight transition-all"
-                style={mode === "signup" ? { background: "var(--surface)", color: "var(--fg)", boxShadow: "var(--shadow-xs)" } : { color: "var(--fg-soft)" }}
-              >Create account</TabsTrigger>
             </TabsList>
 
             <TabsContent value="signin" className="mt-0">
