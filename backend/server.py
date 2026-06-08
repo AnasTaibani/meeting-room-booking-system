@@ -557,6 +557,12 @@ async def microsoft_login():
 async def me(user: dict = Depends(get_current_user)):
     return public_user(user)
 
+@api.get("/debug/db")
+async def debug_db():
+    return {
+        "database": db.name
+    }
+
 
 # ---------------------- Rooms -----------------------------------------------
 @api.get("/rooms", response_model=List[RoomOut])
