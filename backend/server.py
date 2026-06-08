@@ -168,6 +168,9 @@ class IssueOut(BaseModel):
     resolved_by: Optional[str] = None
     resolved_at: Optional[datetime] = None
 
+class UpdateProfileIn(BaseModel):
+    team: str
+
 
 
 
@@ -851,6 +854,27 @@ async def close_issue(
 
     return {"ok": True}
 
+
+
+@api.put("/users/me")
+async def update_profile(
+    payload: UpdateProfileIn,
+    current_user=Depends(get_current_user)
+):
+    await db.users.update_one(
+        {"id": current_user["id"]},
+        {
+            "$set": {
+                "team": payload.team
+            }
+        }
+    )
+
+    user = await db.users.find_one(
+        {"id": current_user["id"]}
+    )
+
+    return public_user(user)
 # ---------------------- Admin -----------------------------------------------
 @api.get("/admin/bookings", response_model=List[BookingOut])
 async def admin_list_bookings(_admin: dict = Depends(require_admin)):

@@ -6,6 +6,8 @@ import { LayoutDashboard, CalendarRange, ClipboardList, ShieldCheck, LogOut, Sun
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import logoLight from "@/assets/logo-light.png";
 import logoDark from "@/assets/logo-dark.png";
+import React, { useState } from "react";
+import ProfileDialog from "@/components/ProfileDialog";
 
 function Wordmark({ size = "md" }) {
   const sizes = {
@@ -98,6 +100,9 @@ export default function Layout({ children }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
+
+  const [profileOpen, setProfileOpen] = useState(false);
+
   const initials = (user?.name || "U")
     .split(" ").map((s) => s[0]).filter(Boolean).slice(0, 2).join("").toUpperCase();
 
@@ -140,9 +145,29 @@ export default function Layout({ children }) {
               <AvatarFallback className="rounded-full text-[11px] font-semibold" style={{ background: "var(--accent)", color: "var(--accent-fg)" }}>{initials}</AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
-              <div className="text-sm font-medium truncate" data-testid="sidebar-user-name" style={{ color: "var(--fg)" }}>{user?.name}</div>
-              <div className="text-[11px] truncate" style={{ color: "var(--fg-soft)" }}>{user?.team} · {user?.role}</div>
-            </div>
+                <div
+                  className="text-sm font-medium truncate"
+                  data-testid="sidebar-user-name"
+                  style={{ color: "var(--fg)" }}
+                >
+                  {user?.name}
+                </div>
+
+                <div
+                  className="text-[11px] truncate"
+                  style={{ color: "var(--fg-soft)" }}
+                >
+                  {user?.team} · {user?.role}
+                </div>
+
+                <button
+                  onClick={() => setProfileOpen(true)}
+                  className="text-[11px] mt-1 hover:underline"
+                  style={{ color: "var(--accent)" }}
+                >
+                  Edit Team
+                </button>
+              </div>
             <button
               data-testid="logout-button"
               onClick={handleLogout}
@@ -218,6 +243,10 @@ export default function Layout({ children }) {
         </div>
       </div>
       </div>
+      <ProfileDialog
+        open={profileOpen}
+        onClose={() => setProfileOpen(false)}
+      />
     </div>
   );
 }
