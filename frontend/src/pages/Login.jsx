@@ -190,19 +190,9 @@ export default function Login() {
           </div>
 
           <div className="text-[10px] tracking-[0.24em] uppercase font-semibold mb-3" style={{ color: "var(--fg-soft)" }}>Account access</div>
-          <h2 className="font-display text-[32px] tracking-tight mb-8" style={{ color: "var(--fg)" }}>ign in to your workspace</h2>
+          <h2 className="font-display text-[32px] tracking-tight mb-8" style={{ color: "var(--fg)" }}>Sign in to your workspace</h2>
 
           <Tabs value={mode} onValueChange={setMode} className="w-full">
-            <TabsList
-              className="grid grid-cols-2 rounded-xl p-1 mb-6 h-auto"
-              style={{ background: "var(--surface-muted)", border: "1px solid var(--border)" }}
-            >
-              <TabsTrigger
-                data-testid="auth-tab-signin" value="signin"
-                className="rounded-lg py-2 text-sm tracking-tight transition-all"
-                style={mode === "signin" ? { background: "var(--surface)", color: "var(--fg)", boxShadow: "var(--shadow-xs)" } : { color: "var(--fg-soft)" }}
-              >Sign in</TabsTrigger>
-            </TabsList>
 
             <TabsContent value="signin" className="mt-0">
 
@@ -263,7 +253,7 @@ export default function Login() {
                   <Input
                     data-testid="login-email" type="email" required
                     value={siEmail} onChange={(e) => setSiEmail(e.target.value)}
-                    placeholder="you@cmetamorphtech.com"
+                    placeholder="you@metamorphtech.com"
                     className="rounded-lg h-11" style={inputStyle}
                   />
                 </Field>
