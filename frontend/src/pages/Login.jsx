@@ -263,7 +263,7 @@ export default function Login() {
                   <Input
                     data-testid="login-email" type="email" required
                     value={siEmail} onChange={(e) => setSiEmail(e.target.value)}
-                    placeholder="you@company.com"
+                    placeholder="you@cmetamorphtech.com"
                     className="rounded-lg h-11" style={inputStyle}
                   />
                 </Field>
@@ -290,27 +290,6 @@ export default function Login() {
                   {busy ? "Signing in..." : "Sign in"} <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </form>
-
-              <div className="mt-8 pt-6" style={{ borderTop: "1px solid var(--border)" }}>
-                <div className="text-[10px] tracking-[0.22em] uppercase font-semibold mb-3" style={{ color: "var(--fg-soft)" }}>
-                  Demo accounts
-                </div>
-                <div className="grid grid-cols-1 gap-1.5">
-                  {SEED.map((s) => (
-                    <button
-                      key={s.email} type="button" data-testid={`seed-${s.email}`}
-                      onClick={() => quickFill(s)}
-                      className="flex items-center justify-between text-left px-3 py-2.5 text-xs rounded-lg transition-all"
-                      style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
-                      onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--border-strong)"; e.currentTarget.style.background = "var(--surface-muted)"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border)"; e.currentTarget.style.background = "var(--surface)"; }}
-                    >
-                      <span style={{ color: "var(--fg)" }}>{s.email}</span>
-                      <span style={{ color: "var(--fg-soft)" }}>{s.role} · {s.pwd}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
             </TabsContent>
 
             <TabsContent value="signup" className="mt-0">
