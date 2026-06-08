@@ -557,10 +557,14 @@ async def microsoft_login():
 async def me(user: dict = Depends(get_current_user)):
     return public_user(user)
 
-@api.get("/debug/db")
-async def debug_db():
+@api.get("/debug/mongo")
+async def debug_mongo():
+    rooms = await db.rooms.find().to_list(100)
+
     return {
-        "database": db.name
+        "database": db.name,
+        "room_count": len(rooms),
+        "rooms": rooms[:3]
     }
 
 
