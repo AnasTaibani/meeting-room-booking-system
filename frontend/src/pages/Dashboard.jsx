@@ -119,7 +119,7 @@ export default function Dashboard() {
                 key={r.id}
                 room={r}
                 animateDelay={i * 80}
-                onBook={(room) => {S
+                onBook={(room) => {
                   setInitialRoomId(room.id);
                   setDialogOpen(true);
                 }}

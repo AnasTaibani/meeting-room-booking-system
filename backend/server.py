@@ -62,9 +62,9 @@ FRONTEND_URL = os.getenv(
 )
 
 ROOMS_SEED = [
-    {"id": "room-1", "name": "Meeting Room 1", "capacity": 6,  "description": "Cozy 6-seater for stand-ups and small syncs."},
-    {"id": "room-2", "name": "Meeting Room 2", "capacity": 10, "description": "Medium room with conferencing and whiteboard."},
-    {"id": "room-3", "name": "Boardroom",       "capacity": 16, "description": "Executive boardroom with premium AV setup."},
+    {"id": "room-1", "name": "Meeting Room 1", "capacity": 4,  "description": "Compact meeting space for interviews, one-to-one discussions, and small team collaborations."},
+    {"id": "room-2", "name": "Meeting Room 2", "capacity": 4, "description": "Flexible meeting room suitable for project discussions, planning sessions, and hybrid meetings."},
+    {"id": "room-3", "name": "Boardroom",       "capacity": 12, "description": "Executive boardroom designed for leadership meetings, client presentations, and larger team discussions."},
 ]
 
 ROOM_IMAGES = {
@@ -978,12 +978,8 @@ async def seed_admin_and_users():
             await db.users.update_one({"email": admin_email}, {"$set": updates})
 
     # Seed employees
-    employees = [
-        {"email": "jane@company.com",  "name": "Jane Cooper",   "team": "Product"},
-        {"email": "alex@company.com",  "name": "Alex Mendoza",  "team": "Engineering"},
-        {"email": "priya@company.com", "name": "Priya Sharma",  "team": "Design"},
-        {"email": "sam@company.com",   "name": "Sam Whitaker",  "team": "Marketing"},
-    ]
+    employees = []
+
     for emp in employees:
         if not await db.users.find_one({"email": emp["email"]}):
             await db.users.insert_one({
